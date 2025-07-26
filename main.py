@@ -26,10 +26,15 @@ def time_taken(seconds):
 
 @app.post('/summary')
 async def summarize_transactions(file: UploadFile = File(...)):
+    """
+    Endpoint to summarize transactions from an uploaded PDF file.
+    """
+    # validate file type only PDF
+    if not file.filename.endswith('.pdf'):
+        return ResponseSchema(status=False, message="Invalid file type. Only PDF files are allowed.", data={}, model_metrics={})
+    
     started= datetime.datetime.now()
-    """
-    Endpoint to summarize transactions from an uploaded file.
-    """
+
     client = genai.Client(api_key=secrets.google_key)
     file_bytes= types.Part.from_bytes( data=file.file.read(), mime_type='application/pdf' )
 
@@ -37,7 +42,7 @@ async def summarize_transactions(file: UploadFile = File(...)):
     You are a skilled financial analyst with extensive experience in processing and summarizing transaction data for various financial statements.
     Please analyze the statement and extract the following key insights:
 
-    Statement Period: From which date to which date does the statement span?
+    Statement Period: bank name - From which date to which date does the statement span?
     Opening Balance and Closing Balance
     Total Income: Sum of all credited amounts
     Total Expense: Sum of all debited amounts
